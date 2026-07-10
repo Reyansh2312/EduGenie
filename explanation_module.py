@@ -1,25 +1,20 @@
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-import torch
+import os
+import google.generativeai as genai
+from dotenv import load_dotenv
 
-# Load the improved model using safetensors (bypasses the security error)
-explain_tokenizer = AutoTokenizer.from_pretrained("MBZUAI/LaMini-Flan-T5-783M")
-explain_model = AutoModelForSeq2SeqLM.from_pretrained("MBZUAI/LaMini-Flan-T5-783M", use_safetensors=True)
+load_dotenv()
 
-def explain_topic(topic: str) -> str:
+# Gemini API setup (Jo already aapke baaki modules mein chal raha hai)
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
+def explain_topic(topic: str) -> dict:
     try:
-        input_text = f"Explain the concept of '{topic}' in a simple and clear way for a school student."
-        inputs = explain_tokenizer(input_text, return_tensors="pt")
-
-        outputs = explain_model.generate(
-            **inputs,
-            max_new_tokens=150,
-            temperature=0.7,
-            top_k=50,
-            top_p=0.95,
-            do_sample=True
-        )
-
-        explanation = explain_tokenizer.decode(outputs[0], skip_special_tokens=True)
-        return explanation
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        prompt = f"Explain the following educational topic in simple and clear terms: {topic}"
+        
+        response = model.generate_content(prompt)
+        
+        # Frontend exactly yahi format expect kar raha hai
+        return {"explanation": response.text.strip()}
     except Exception as e:
-        return f"⚠️ Error in Explanation: {str(e)}"
+        return {"error": str(e)}
