@@ -4,17 +4,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Gemini API setup (Jo already aapke baaki modules mein chal raha hai)
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-def explain_topic(topic: str) -> dict:
+def explain_topic(topic: str) -> str:
     try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        prompt = f"Explain the following educational topic in simple and clear terms: {topic}"
+        # Yahan wahi model name hai jo latest aur sabse stable hai
+        model = genai.GenerativeModel('gemini-pro-latest')
+        prompt = f"Explain the following educational topic in simple terms: {topic}"
         
         response = model.generate_content(prompt)
         
-        # Frontend exactly yahi format expect kar raha hai
-        return {"explanation": response.text.strip()}
+        # SABSE IMPORTANT LINE: Hum sirf text bhej rahe hain, koi dictionary {} nahi.
+        return str(response.text).strip()
+        
     except Exception as e:
-        return {"error": str(e)}
+        return f"Error: {str(e)}"
