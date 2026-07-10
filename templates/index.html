@@ -3,125 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduGenie - Ultimate AI Tutor</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f9f9f9; }
-        h1, h2 { color: #333; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 30px; }
-        input, textarea { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        button { padding: 10px 20px; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 5px; }
-        button:hover { background-color: #45a049; }
-        .response-box { background-color: #e8f5e9; padding: 15px; border-radius: 8px; margin-top: 15px; white-space: pre-wrap; }
-    </style>
+    <title>EduGenie</title>
+    <!-- CSS File Link -->
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <h1>EduGenie - The Ultimate AI Tutor 🧞‍♂️</h1>
+    <h1>Welcome to EduGenie 🧠✨</h1>
+    <p>Your personal AI tutor for learning support!</p>
 
-    <div class="card">
-        <h2>1. Ask Anything (QnA) 🤖</h2>
-        <input type="text" id="qna-input" placeholder="Apna sawaal yahan type karo...">
-        <button onclick="fetchDataGET('/qa?question=', 'qna-input', 'qna-response', 'answer')">Ask AI</button>
-        <div id="qna-response" class="response-box">Waiting for your question...</div>
-    </div>
+    <!-- Q&A -->
+    <form id="qaForm" onsubmit="handleFormSubmit(event, '/qa?question=', 'question', 'qaResult', 'answer', 'GET')">
+        <label><strong>Ask EduGenie a Question:</strong></label><br><br>
+        <input type="text" id="question" placeholder="Why is the sky blue?" required>
+        <button type="submit">Get Answer</button>
+    </form>
+    <div id="qaResult" class="output"></div>
 
-    <div class="card">
-        <h2>2. Explanation Module 📖</h2>
-        <input type="text" id="explain-input" placeholder="Topic ka naam likho (e.g., Photosynthesis)...">
-        <button onclick="fetchDataPOST('/explain/', 'explain-input', 'explain-response', 'explanation', 'topic')">Explain</button>
-        <div id="explain-response" class="response-box">Waiting for a topic...</div>
-    </div>
+    <!-- Explanation -->
+    <form id="explainForm" onsubmit="handleFormSubmit(event, '/explain/', 'topic', 'explanationResult', 'explanation', 'POST', 'topic')">
+        <label><strong>Need an Explanation?</strong></label><br><br>
+        <input type="text" id="topic" placeholder="Photosynthesis" required>
+        <button type="submit">Explain</button>
+    </form>
+    <div id="explanationResult" class="output"></div>
 
-    <div class="card">
-        <h2>3. Learning Path Creator 🗺️</h2>
-        <input type="text" id="path-input" placeholder="Kaunsa naya topic seekhna chahte ho?">
-        <button onclick="fetchDataGET('/learn/recommendations?topic=', 'path-input', 'path-response', 'recommendation')">Create Roadmap</button>
-        <div id="path-response" class="response-box">Waiting for a topic...</div>
-    </div>
+    <!-- Summary -->
+    <form id="summaryForm" onsubmit="handleFormSubmit(event, '/summarize/', 'summaryText', 'summaryResult', 'summary', 'POST', 'text')">
+        <label><strong>Summarize a Paragraph:</strong></label><br><br>
+        <input type="text" id="summaryText" placeholder="Paste long content to summarize" required>
+        <button type="submit">Summarize</button>
+    </form>
+    <div id="summaryResult" class="output"></div>
 
-    <div class="card">
-        <h2>4. Text Summarizer 📝</h2>
-        <textarea id="summary-input" rows="4" placeholder="Bada paragraph yahan paste karo..."></textarea>
-        <button onclick="fetchDataPOST('/summarize/', 'summary-input', 'summary-response', 'summary', 'text')">Summarize</button>
-        <div id="summary-response" class="response-box">Waiting for text...</div>
-    </div>
+    <!-- Quiz -->
+    <form id="quizForm" onsubmit="handleQuizSubmit(event)">
+        <label><strong>Generate a Quiz:</strong></label><br><br>
+        <input type="text" id="quizText" placeholder="Solar System" required>
+        <button type="submit">Generate Quiz</button>
+    </form>
+    <div id="quizResult" class="output"></div>
 
-    <div class="card">
-        <h2>5. Quiz Generator ✍️</h2>
-        <textarea id="quiz-input" rows="4" placeholder="Paragraph paste karo, AI usse 3 MCQs banayega..."></textarea>
-        <button onclick="generateQuiz()">Generate Quiz</button>
-        <div id="quiz-response" class="response-box">Waiting for text...</div>
-    </div>
+    <!-- Learning Recommendations -->
+    <form id="learnForm" onsubmit="handleFormSubmit(event, '/learn/recommendations?topic=', 'learnTopic', 'learnResult', 'recommendation', 'GET')">
+        <label><strong>Personalized Learning Path:</strong></label><br><br>
+        <input type="text" id="learnTopic" placeholder="Machine Learning" required>
+        <button type="submit">Get Recommendations</button>
+    </form>
+    <div id="learnResult" class="output"></div>
 
     <script>
-        // GET API ke liye function
-        async function fetchDataGET(urlBase, inputId, responseId, responseKey) {
+        // API Data Fetching Logic
+        async function handleFormSubmit(event, urlBase, inputId, resultId, responseKey, method, payloadKey=null) {
+            event.preventDefault();
             const inputVal = document.getElementById(inputId).value;
-            const responseBox = document.getElementById(responseId);
-            if (!inputVal) { alert("Please type something!"); return; }
+            const resultDiv = document.getElementById(resultId);
+            
+            resultDiv.style.display = "block";
+            resultDiv.innerText = "⏳ Processing...";
 
-            responseBox.innerText = "Soch raha hu... ⏳";
             try {
-                const res = await fetch(urlBase + encodeURIComponent(inputVal));
-                const data = await res.json();
-                responseBox.innerText = data[responseKey];
+                let response;
+                if (method === 'GET') {
+                    response = await fetch(urlBase + encodeURIComponent(inputVal));
+                } else {
+                    const bodyData = {};
+                    bodyData[payloadKey] = inputVal;
+                    response = await fetch(urlBase, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(bodyData)
+                    });
+                }
+                const data = await response.json();
+                resultDiv.innerText = data[responseKey] || data.error || "Done!";
             } catch (error) {
-                responseBox.innerText = "Error: " + error;
+                resultDiv.innerText = "⚠️ Error: " + error;
             }
         }
 
-        // POST API ke liye function
-        async function fetchDataPOST(url, inputId, responseId, responseKey, payloadKey) {
-            const inputVal = document.getElementById(inputId).value;
-            const responseBox = document.getElementById(responseId);
-            if (!inputVal) { alert("Please type something!"); return; }
+        async function handleQuizSubmit(event) {
+            event.preventDefault();
+            const inputVal = document.getElementById("quizText").value;
+            const resultDiv = document.getElementById("quizResult");
+            
+            resultDiv.style.display = "block";
+            resultDiv.innerText = "⏳ Generating MCQs...";
 
-            responseBox.innerText = "Soch raha hu... ⏳";
             try {
-                const bodyData = {};
-                bodyData[payloadKey] = inputVal;
-                
-                const res = await fetch(url, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(bodyData)
-                });
-                const data = await res.json();
-                responseBox.innerText = data[responseKey] || data.error;
-            } catch (error) {
-                responseBox.innerText = "Error: " + error;
-            }
-        }
-
-        // Quiz JSON ke liye alag function
-        async function generateQuiz() {
-            const inputVal = document.getElementById("quiz-input").value;
-            const responseBox = document.getElementById("quiz-response");
-            if (!inputVal) { alert("Please paste a paragraph!"); return; }
-
-            responseBox.innerText = "MCQs bana raha hu... ⏳";
-            try {
-                const res = await fetch("/quiz", {
+                const response = await fetch("/quiz", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ text: inputVal })
                 });
-                const data = await res.json();
-                let htmlOutput = "";
+                const data = await response.json();
                 
                 if (data.quiz && Array.isArray(data.quiz)) {
+                    let htmlOutput = "";
                     data.quiz.forEach((q, index) => {
                         htmlOutput += `<strong>Q${index + 1}: ${q.question}</strong><br>`;
                         if(q.options) {
                             q.options.forEach(opt => htmlOutput += `- ${opt}<br>`);
                         }
-                        htmlOutput += `<span style="color: green;"><b>Answer:</b> ${q.answer}</span><br><br>`;
+                        htmlOutput += `<span style="color: #4caf50;"><b>Answer:</b> ${q.answer}</span><br><br>`;
                     });
-                    responseBox.innerHTML = htmlOutput;
+                    resultDiv.innerHTML = htmlOutput;
                 } else {
-                    responseBox.innerText = data.error || "Quiz generation failed.";
+                    resultDiv.innerText = data.error || "Quiz generation failed.";
                 }
             } catch (error) {
-                responseBox.innerText = "Error: " + error;
+                resultDiv.innerText = "⚠️ Error: " + error;
             }
         }
     </script>
