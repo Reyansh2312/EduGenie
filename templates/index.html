@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduGenie - Ultimate AI Tutor</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f9f9f9; }
+        h1, h2 { color: #333; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        input, textarea { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { padding: 10px 20px; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 5px; }
+        button:hover { background-color: #45a049; }
+        .response-box { background-color: #e8f5e9; padding: 15px; border-radius: 8px; margin-top: 15px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>EduGenie - The Ultimate AI Tutor 🧞‍♂️</h1>
+
+    <div class="card">
+        <h2>1. Ask Anything (QnA) 🤖</h2>
+        <input type="text" id="qna-input" placeholder="Apna sawaal yahan type karo...">
+        <button onclick="fetchDataGET('/qa?question=', 'qna-input', 'qna-response', 'answer')">Ask AI</button>
+        <div id="qna-response" class="response-box">Waiting for your question...</div>
+    </div>
+
+    <div class="card">
+        <h2>2. Explanation Module 📖</h2>
+        <input type="text" id="explain-input" placeholder="Topic ka naam likho (e.g., Photosynthesis)...">
+        <button onclick="fetchDataPOST('/explain/', 'explain-input', 'explain-response', 'explanation', 'topic')">Explain</button>
+        <div id="explain-response" class="response-box">Waiting for a topic...</div>
+    </div>
+
+    <div class="card">
+        <h2>3. Learning Path Creator 🗺️</h2>
+        <input type="text" id="path-input" placeholder="Kaunsa naya topic seekhna chahte ho?">
+        <button onclick="fetchDataGET('/learn/recommendations?topic=', 'path-input', 'path-response', 'recommendation')">Create Roadmap</button>
+        <div id="path-response" class="response-box">Waiting for a topic...</div>
+    </div>
+
+    <div class="card">
+        <h2>4. Text Summarizer 📝</h2>
+        <textarea id="summary-input" rows="4" placeholder="Bada paragraph yahan paste karo..."></textarea>
+        <button onclick="fetchDataPOST('/summarize/', 'summary-input', 'summary-response', 'summary', 'text')">Summarize</button>
+        <div id="summary-response" class="response-box">Waiting for text...</div>
+    </div>
+
+    <div class="card">
+        <h2>5. Quiz Generator ✍️</h2>
+        <textarea id="quiz-input" rows="4" placeholder="Paragraph paste karo, AI usse 3 MCQs banayega..."></textarea>
+        <button onclick="generateQuiz()">Generate Quiz</button>
+        <div id="quiz-response" class="response-box">Waiting for text...</div>
+    </div>
+
+    <script>
+        // GET API ke liye function
+        async function fetchDataGET(urlBase, inputId, responseId, responseKey) {
+            const inputVal = document.getElementById(inputId).value;
+            const responseBox = document.getElementById(responseId);
+            if (!inputVal) { alert("Please type something!"); return; }
+
+            responseBox.innerText = "Soch raha hu... ⏳";
+            try {
+                const res = await fetch(urlBase + encodeURIComponent(inputVal));
+                const data = await res.json();
+                responseBox.innerText = data[responseKey];
+            } catch (error) {
+                responseBox.innerText = "Error: " + error;
+            }
+        }
+
+        // POST API ke liye function
+        async function fetchDataPOST(url, inputId, responseId, responseKey, payloadKey) {
+            const inputVal = document.getElementById(inputId).value;
+            const responseBox = document.getElementById(responseId);
+            if (!inputVal) { alert("Please type something!"); return; }
+
+            responseBox.innerText = "Soch raha hu... ⏳";
+            try {
+                const bodyData = {};
+                bodyData[payloadKey] = inputVal;
+                
+                const res = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(bodyData)
+                });
+                const data = await res.json();
+                responseBox.innerText = data[responseKey] || data.error;
+            } catch (error) {
+                responseBox.innerText = "Error: " + error;
+            }
+        }
+
+        // Quiz JSON ke liye alag function
+        async function generateQuiz() {
+            const inputVal = document.getElementById("quiz-input").value;
+            const responseBox = document.getElementById("quiz-response");
+            if (!inputVal) { alert("Please paste a paragraph!"); return; }
+
+            responseBox.innerText = "MCQs bana raha hu... ⏳";
+            try {
+                const res = await fetch("/quiz", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text: inputVal })
+                });
+                const data = await res.json();
+                let htmlOutput = "";
+                
+                if (data.quiz && Array.isArray(data.quiz)) {
+                    data.quiz.forEach((q, index) => {
+                        htmlOutput += `<strong>Q${index + 1}: ${q.question}</strong><br>`;
+                        if(q.options) {
+                            q.options.forEach(opt => htmlOutput += `- ${opt}<br>`);
+                        }
+                        htmlOutput += `<span style="color: green;"><b>Answer:</b> ${q.answer}</span><br><br>`;
+                    });
+                    responseBox.innerHTML = htmlOutput;
+                } else {
+                    responseBox.innerText = data.error || "Quiz generation failed.";
+                }
+            } catch (error) {
+                responseBox.innerText = "Error: " + error;
+            }
+        }
+    </script>
+</body>
+</html>
