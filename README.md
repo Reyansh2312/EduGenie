@@ -31,44 +31,53 @@ Welcome to **EduGenie**, a smart, customized AI-powered educational assistant bu
 ## ⚙️ How It Works (Project Flow)
 
 1. **User Input:** The user types a question, topic, or paragraph into the frontend UI.
-2. **API Routing:** FastAPI captures this input and routes it to the specific processing module (e.g., `qna.py`, `explanation_module.py`).
-3. **AI Processing:** The backend securely communicates with the NLP API, passing carefully engineered prompts to restrict length and format (ensuring high-quality, concise outputs).
+2. **API Routing:** FastAPI captures this input and routes it to the specific processing module.
+3. **AI Processing:** The backend securely communicates with the NLP API, passing carefully engineered prompts to restrict length and format.
 4. **Response Delivery:** The structured response is sent back to the user instantly on the web interface.
 
 ---
 
 ## 💻 Local Setup & Installation
 
-Want to run EduGenie on your local machine? Follow these simple steps:
+Want to run EduGenie on your local machine? Follow these simple steps depending on your Operating System (Windows, Mac, or Linux):
 
 ### Prerequisites
 Make sure you have **Python** and **Git** installed on your system.
 
-### Step 1: Clone the Repository
-Open your terminal and run:
+### Step 1: Clone the Repository (All OS)
+Open your terminal or command prompt and run:
 `bash
 git clone https://github.com/Reyansh2312/EduGenie.git
 cd EduGenie
 `
 
 ### Step 2: Install Dependencies
-Install all the required Python libraries using the `requirements.txt` file:
-`bash
+**For Windows:**
+`cmd
 pip install -r requirements.txt
 `
+**For Mac / Linux:**
+`bash
+pip3 install -r requirements.txt
+`
 
-### Step 3: Setup Environment Variables
+### Step 3: Setup Environment Variables (All OS)
 1. Create a file named `.env` in the root directory.
-2. Add your LLM API Key to this file:
+2. Add your API Key to this file:
 `text
-API_KEY=your_secret_api_key_here
+GEMINI_API_KEY=your_secret_api_key_here
 `
 
 ### Step 4: Run the Server
-Start the FastAPI server using Uvicorn:
-`bash
+**For Windows:**
+`cmd
 python -m uvicorn main:app --reload
 `
+**For Mac / Linux:**
+`bash
+python3 -m uvicorn main:app --reload
+`
+
 *The server will start running at `http://127.0.0.1:8000`. Open this URL in your browser to use EduGenie locally!*
 
 ---
