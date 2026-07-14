@@ -4,7 +4,6 @@ import google.generativeai as genai
 import re
 import json
 
-# .env file se key uthana
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=GEMINI_API_KEY)
@@ -14,9 +13,9 @@ def clean_json_block(text):
 
 def generate_quiz(text: str) -> list:
     try:
-        model = genai.GenerativeModel(model_name="gemini-1.5-flash-latest")
+        # YAHAN FIX KIYA HAI: gemini-pro use kiya hai taaki 404 error na aaye
+        model = genai.GenerativeModel(model_name="gemini-pro-latest")
         
-        # Ekdum sahi aur clean prompt (Triple quotes """ ke andar)
         prompt = f"""Create a 3-question multiple-choice quiz based on the general knowledge of this topic: '{text}'. 
 IMPORTANT: Do not use phrases like 'in the passage' or 'in the text'. Just ask direct questions about the topic.
 

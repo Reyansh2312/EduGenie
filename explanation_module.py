@@ -11,7 +11,7 @@ def explain_topic(topic: str) -> str:
         model = genai.GenerativeModel('gemini-1.5-flash-latest')
         
         # Variable aur indentation fix kar diya gaya hai
-        prompt = f"Explain the following educational topic in a very concise, short, and easy-to-understand way. Keep it under 3-4 sentences or use short bullet points so a student can read it quickly. Topic: {topic}"
+        prompt = f"You are a helpful AI tutor. Answer the following question in MAXIMUM 3 to 4 lines. Be very concise, short, and direct. Do not write long paragraphs. Question: {question}"
         
         response = model.generate_content(prompt)
         
