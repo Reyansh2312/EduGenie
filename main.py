@@ -1,17 +1,18 @@
 import os
-os.environ["GRPC_DNS_RESOLVER"] = "native"
-
+import uvicorn
 from fastapi import FastAPI, Request, Query
 from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
-# Modules import kar rahe hain
+# Modules import
 from qna import get_ai_answer
 from summary_module import get_summary
 from quiz_module import generate_quiz
 from learning_path import get_learning_recommendations
 from explanation_module import explain_topic
+
+os.environ["GRPC_DNS_RESOLVER"] = "native"
 
 app = FastAPI()
 
@@ -64,3 +65,8 @@ async def quiz_api(request: Request):
 async def learning_recommendation_api(topic: str = Query(...)):
     recommendation = get_learning_recommendations(topic)
     return {"topic": topic, "recommendation": recommendation}
+
+# RENDER PORT FIX
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
