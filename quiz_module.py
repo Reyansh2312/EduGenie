@@ -14,9 +14,13 @@ def clean_json_block(text):
 
 def generate_quiz(text: str) -> list:
     try:
-        model = genai.GenerativeModel(model_name="gemini-pro-latest")
-        prompt = f"""You are a quiz generator.
-From the following passage, create 3 multiple-choice questions. Each question should include:
+        model = genai.GenerativeModel(model_name="gemini-1.5-flash-latest")
+        
+        # Ekdum sahi aur clean prompt (Triple quotes """ ke andar)
+        prompt = f"""Create a 3-question multiple-choice quiz based on the general knowledge of this topic: '{text}'. 
+IMPORTANT: Do not use phrases like 'in the passage' or 'in the text'. Just ask direct questions about the topic.
+
+Each question should include:
 - A "question"
 - A list of 4 "options"
 - A correct "answer" that must exactly match one of the options.
@@ -28,10 +32,7 @@ Format your output as **valid JSON**, like this:
     "options": ["A", "B", "C", "D"],
     "answer": "A"
   }}
-]
-
-Passage:
-{text}"""
+]"""
         response = model.generate_content(prompt)
         cleaned_text = clean_json_block(response.text.strip())
         return json.loads(cleaned_text)

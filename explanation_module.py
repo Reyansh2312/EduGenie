@@ -8,13 +8,13 @@ genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 def explain_topic(topic: str) -> str:
     try:
-        # Yahan wahi model name hai jo latest aur sabse stable hai
-        model = genai.GenerativeModel('gemini-pro-latest')
-        prompt = f"Explain the following educational topic in simple terms: {topic}"
+        model = genai.GenerativeModel('gemini-1.5-flash-latest')
+        
+        # Variable aur indentation fix kar diya gaya hai
+        prompt = f"Explain the following educational topic in a very concise, short, and easy-to-understand way. Keep it under 3-4 sentences or use short bullet points so a student can read it quickly. Topic: {topic}"
         
         response = model.generate_content(prompt)
         
-        # SABSE IMPORTANT LINE: Hum sirf text bhej rahe hain, koi dictionary {} nahi.
         return str(response.text).strip()
         
     except Exception as e:
