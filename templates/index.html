@@ -19,6 +19,10 @@
         /* Alignment Fix */
         .quiz-option { display: flex; align-items: center; gap: 10px; margin: 5px 0; cursor: pointer; }
         .quiz-option input { width: auto; }
+        
+        /* Footer Styling */
+        .footer { text-align: center; margin-top: 30px; padding: 20px; font-size: 0.9em; color: #888; }
+        .footer span { color: #bb86fc; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -65,6 +69,11 @@
         <button onclick="handleFormSubmit('/learn/recommendations?topic=', 'learnTopic', 'learnResult', 'recommendation', 'GET')">Get Recommendations</button>
         <div id="learnResult" class="output"></div>
     </div>
+</div>
+
+<!-- Credit Footer -->
+<div class="footer">
+    Made with ❤️ by <span>Reyansh Mittal</span>
 </div>
 
 <script>
