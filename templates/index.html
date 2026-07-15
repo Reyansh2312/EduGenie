@@ -5,6 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduGenie | Smart Tutor</title>
+    
+    <!-- Marked.js library - Yeh AI ke text ko sundar design mein badlegi -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
     <style>
         body { background-color: #121212; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; padding: 40px 20px; margin: 0; }
         .container { max-width: 800px; margin: auto; }
@@ -14,9 +18,17 @@
         input[type="text"] { width: 100%; padding: 12px; background: #2c2c2c; border: 1px solid #444; border-radius: 6px; color: white; box-sizing: border-box; }
         button { background: #bb86fc; color: #000; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; margin-top: 10px; font-weight: bold; }
         button:hover { background: #9965f4; }
-        .output { margin-top: 15px; padding: 15px; background: #000; border-radius: 6px; display: none; border-left: 4px solid #bb86fc; min-height: 20px; }
+        
+        /* New CSS for formatting the AI Output beautifully */
+        .output { margin-top: 15px; padding: 20px; background: #000; border-radius: 6px; display: none; border-left: 4px solid #bb86fc; min-height: 20px; line-height: 1.6; font-size: 1.05em; }
+        .output h1, .output h2, .output h3 { color: #bb86fc; margin-top: 20px; margin-bottom: 10px; }
+        .output h1:first-child, .output h2:first-child, .output h3:first-child { margin-top: 0; }
+        .output p { margin-bottom: 15px; }
+        .output ul, .output ol { margin-bottom: 15px; padding-left: 20px; }
+        .output li { margin-bottom: 8px; }
+        .output strong { color: #ffffff; }
+        
         .quiz-item { margin-bottom: 20px; padding: 15px; border-bottom: 1px solid #333; }
-        /* Alignment Fix */
         .quiz-option { display: flex; align-items: center; gap: 10px; margin: 5px 0; cursor: pointer; }
         .quiz-option input { width: auto; }
         
@@ -81,7 +93,7 @@
         const inputVal = document.getElementById(inputId).value;
         const resultDiv = document.getElementById(resultId);
         resultDiv.style.display = "block";
-        resultDiv.innerText = "Processing...";
+        resultDiv.innerHTML = "⏳ Processing..."; // .innerText ko .innerHTML kar diya
         try {
             let response;
             if (method === 'GET') response = await fetch(urlBase + encodeURIComponent(inputVal));
@@ -90,8 +102,12 @@
                 response = await fetch(urlBase, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(bodyData) });
             }
             const data = await response.json();
-            resultDiv.innerText = data[responseKey] || data.error || "Done!";
-        } catch (e) { resultDiv.innerText = "Error!"; }
+            const outputText = data[responseKey] || data.error || "Done!";
+            
+            // Yahan jadoo ho raha hai: Text ko proper HTML mein convert kiya gaya
+            resultDiv.innerHTML = marked.parse(outputText);
+            
+        } catch (e) { resultDiv.innerHTML = "Error!"; }
     }
 
     async function generateQuiz() {
@@ -111,7 +127,7 @@
                 html += `<button onclick="checkAns(${i}, '${q.answer}')">Check</button><div id="r${i}"></div></div>`;
             });
             resultDiv.innerHTML = html;
-        } else resultDiv.innerText = "Error loading quiz.";
+        } else resultDiv.innerHTML = "Error loading quiz.";
     }
 
     function checkAns(i, correct) {
